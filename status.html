@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الاستعلام عن حالة الطلب - Step by Step</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                  url('https://upload.wikimedia.org/wikipedia/commons/f/fc/Burj_Al_Arab_in_Dubai.jpg') center/cover no-repeat;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #ffd700;
+      color: #000;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #ffea00;
+      transform: scale(1.05);
+    }
+
+    .box {
+      background: rgba(0,0,0,0.5);
+      padding: 25px;
+      border-radius: 15px;
+      width: 320px;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+    }
+
+    button {
+      background: #00bcd4;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #ffd700;
+    }
+
+    .result {
+      margin-top: 15px;
+      color: #00e676;
+      font-weight: bold;
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      color: #ddd;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- زر الرجوع -->
+  <a href="orders.html" class="back-btn">⬅ رجوع</a>
+
+  <h2>🔍 الاستعلام عن حالة الطلب</h2>
+
+  <div class="box">
+    <input type="number" id="orderId" placeholder="أدخل رقم الطلب" required>
+    <button onclick="checkStatus()">استعلام</button>
+    <div class="result" id="resultBox"></div>
+  </div>
+
+  <footer>© جميع الحقوق محفوظة لـ عبدالرحمن أحمد</footer>
+
+  <script>
+    function checkStatus() {
+      const id = document.getElementById('orderId').value.trim();
+      const resultBox = document.getElementById('resultBox');
+
+      if (!id) {
+        resultBox.style.color = '#ff5252';
+        resultBox.innerHTML = '⚠️ من فضلك أدخل رقم الطلب.';
+        return;
+      }
+
+      // جلب البيانات من Local Storage
+      let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+      let req = requests.find(r => r.id === id);
+
+      if (req) {
+        let statusColor = '#ffaa00';
+        let statusText = '';
+
+        if (req.status === 'قيد المراجعة') {
+          statusColor = '#ffaa00';
+          statusText = 'قيد المراجعة';
+        } else if (req.status === 'تم القبول') {
+          statusColor = '#00e676';
+          statusText = 'تم القبول ✅<br>📍 عليك التوجه إلى الشركة.';
+        } else if (req.status === 'مرفوض') {
+          statusColor = '#ff5252';
+          statusText = 'مرفوض ❌';
+        }
+
+        resultBox.style.color = '#fff';
+        resultBox.innerHTML = `
+          <p><strong>👤 الاسم:</strong> ${req.name}</p>
+          <p><strong>📞 الهاتف:</strong> ${req.phone}</p>
+          <p><strong>📍 العنوان:</strong> ${req.address}</p>
+          <p><strong>💼 الوظيفة:</strong> ${req.job}</p>
+          <p><strong>📊 الحالة:</strong> <span style="color:${statusColor}; font-weight:bold;">${statusText}</span></p>
+        `;
+      } else {
+        resultBox.style.color = '#ff5252';
+        resultBox.innerHTML = '❌ لم يتم العثور على طلب بهذا الرقم.';
+      }
+    }
+  </script>
+
+</body>
+</html>
