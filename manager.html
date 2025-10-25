@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة الطلبات - Step by Step</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                  url('https://upload.wikimedia.org/wikipedia/commons/f/fc/Burj_Al_Arab_in_Dubai.jpg') center/cover no-repeat;
+      color: white;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 30px;
+      color: #ffd700;
+    }
+
+    .top-buttons {
+      margin: 15px 0;
+    }
+
+    .delete-all {
+      background: #ff1744;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .delete-all:hover {
+      background: #d50000;
+    }
+
+    table {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 900px;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    th {
+      background-color: rgba(255,255,255,0.15);
+      color: #ffd700;
+    }
+
+    tr:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 3px;
+    }
+
+    .accept {
+      background: #00e676;
+      color: black;
+    }
+
+    .reject {
+      background: #ff5252;
+      color: white;
+    }
+
+    .pending {
+      background: #ffaa00;
+      color: black;
+    }
+
+    .delete {
+      background: #444;
+      color: white;
+    }
+
+    .delete:hover {
+      background: #ff1744;
+    }
+
+    footer {
+      margin-top: 20px;
+      color: #ddd;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🧾 لوحة إدارة الطلبات</h2>
+
+  <div class="top-buttons">
+    <button class="delete-all" onclick="deleteAll()">🗑️ حذف كل الطلبات</button>
+  </div>
+
+  <table id="requestsTable">
+    <thead>
+      <tr>
+        <th>رقم الطلب</th>
+        <th>الاسم</th>
+        <th>الهاتف</th>
+        <th>العنوان</th>
+        <th>الوظيفة</th>
+        <th>الحالة</th>
+        <th>التحكم</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <footer>© جميع الحقوق محفوظة لـ عبدالرحمن أحمد</footer>
+
+  <script>
+    function loadRequests() {
+      let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+      const tableBody = document.querySelector('#requestsTable tbody');
+      tableBody.innerHTML = '';
+
+      if (requests.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" style="color:#ccc;">لا توجد طلبات حالياً.</td></tr>';
+        return;
+      }
+
+      requests.forEach(req => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${req.id}</td>
+          <td>${req.name}</td>
+          <td>${req.phone}</td>
+          <td>${req.address}</td>
+          <td>${req.job}</td>
+          <td>${req.status}</td>
+          <td>
+            <button class="accept" onclick="updateStatus('${req.id}', 'تم القبول')">قبول</button>
+            <button class="reject" onclick="updateStatus('${req.id}', 'مرفوض')">رفض</button>
+            <button class="pending" onclick="updateStatus('${req.id}', 'قيد المراجعة')">مراجعة</button>
+            <button class="delete" onclick="deleteRequest('${req.id}')">🗑️ حذف</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function updateStatus(id, newStatus) {
+      let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+      const index = requests.findIndex(r => r.id === id);
+      if (index !== -1) {
+        requests[index].status = newStatus;
+        localStorage.setItem('requests', JSON.stringify(requests));
+        loadRequests();
+      }
+    }
+
+    function deleteRequest(id) {
+      if (confirm("هل أنت متأكد أنك تريد حذف هذا الطلب؟")) {
+        let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+        requests = requests.filter(r => r.id !== id);
+        localStorage.setItem('requests', JSON.stringify(requests));
+        loadRequests();
+      }
+    }
+
+    function deleteAll() {
+      if (confirm("⚠️ هل تريد بالتأكيد حذف *كل الطلبات*؟ لا يمكن التراجع بعد ذلك.")) {
+        localStorage.removeItem('requests');
+        loadRequests();
+      }
+    }
+
+    window.onload = loadRequests;
+  </script>
+
+</body>
+</html>
